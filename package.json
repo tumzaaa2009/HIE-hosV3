@@ -17,8 +17,8 @@
     "pm2-cron": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '59 23 * * *'",
     "pm2-cron-visit": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '59 23 * * *'",
     "pm2-delete-all": "pm2 delete all",
-    "cross-env":"cross-env NODE_ENV=production node ./src/services/pm2.autorun.js"
-
+    "cross-env":"cross-env NODE_ENV=production node ./src/services/pm2.autorun.js",
+    "pm2-status":"pm2 status"
   },
   "dependencies": {
     "axios": "^1.6.0",
