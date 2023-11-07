@@ -1,6 +1,6 @@
 const axios = require('axios');
 const moment = require('moment');
- 
+const https = require('https')
 const { config } = require('dotenv');
 config({ path: '.env.production.local' });
 
@@ -20,7 +20,9 @@ const checkAndRun = async () => {
 
     if (now >= moment(dateEvent, 'YYYY-MM-DD HH:mm:ss')) {
       // หากเราอยู่หรือเกินวันและเวลาที่กำหนด
-      axios.post(`${URL_Hos}/drugallgycashe`)
+      axios.post(`${URL_Hos}/drugallgycashe`,null, {
+        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+    })
         .then((response) => {
           console.log('HTTP request to http://localhost:3000/hie/drugallgycashe has been made.');
           // ใส่โค้ดเพิ่มเติมที่คุณต้องการทำหลังจากการเรียก HTTP นี้
