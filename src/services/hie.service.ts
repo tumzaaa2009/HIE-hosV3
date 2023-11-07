@@ -349,9 +349,10 @@ class HieService {
    
     if (checkToken.msg.expireTicket >= moment(checkNewDate).format('YYYY-MM-DD HH:mm:ss')) {
       const callGetVisit = new Promise((resolve, reject) => {
+        
         //  ส่งค่า listdate ชองคนไข้
         const queryText = `
-        SELECT ov.vstdate,10691 AS hospcode ,(SELECT hospital_thai_name  FROM hospital_profile)As hosname ,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,(year(CURDATE())-YEAR(p.birthday)) as age,icd101.code as diagcode,icd101.name as diagname,dt.name as diagtype  FROM vn_stat  as vn      
+        SELECT ov.vstdate,${hospCodeEnv} AS hospcode ,(SELECT hospital_thai_name  FROM hospital_profile)As hosname ,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,(year(CURDATE())-YEAR(p.birthday)) as age,icd101.code as diagcode,icd101.name as diagname,dt.name as diagtype  FROM vn_stat  as vn      
         LEFT JOIN patient as p  on p.cid = vn.cid
         LEFT JOIN ovst as ov  on ov.hn = vn.hn
         LEFT join icd101 on icd101.code=vn.pdx
@@ -434,8 +435,9 @@ class HieService {
 
     //เช็ค ticket ว่าหมดอายุรึยัง
     if (checkToken.msg.expireTicket >= moment(checkNewDate).format('YYYY-MM-DD HH:mm:ss')) {
+       
       const callGetVisitDate = new Promise((resolve, reject) => {
-        const sql = `SELECT 10691 as hospcode, (SELECT hospital_thai_name  FROM hospital_profile)As hosname,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,( YEAR(CURDATE()) - YEAR(p.birthday)) AS age,ov.vstdate as date_serv,
+        const sql = `SELECT ${hospCodeEnv} as hospcode, (SELECT hospital_thai_name  FROM hospital_profile)As hosname,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,( YEAR(CURDATE()) - YEAR(p.birthday)) AS age,ov.vstdate as date_serv,
         op.temperature as btemp,op.bps as systolic,op.bpd as diastolic,op.pulse,rr as respiratory,op.height as height,op.waist as weight,op.bmi,concat(op.cc,',',op.hpi,',',p.clinic) as chiefcomp,
         ov.pdx as diagcode,icd.name as diagname ,ov.dx_doctor,dr.name as doctor,dt.name as diagtype,opi.icode,d.did,concat(d.name,' ',d.strength) as drugname,opi.qty as amount,d.units
         ,ds.code as drugusage,opr.icd9 as procedcode,icd9.name as procedname,lo.lab_items_code as labtest,li.lab_items_name as labname,lo.lab_order_result as labresult,li.lab_items_normal_value as labnormal
@@ -458,7 +460,7 @@ class HieService {
         
         where p.cid='${checkToken.msg.cidPatient}' and ov.vstdate ='${date_serv}'
         `;
-
+        
         
         let daigOpd = { diag_opd: [] };
         let drugOpd = { drug_opd: [] };
@@ -494,7 +496,7 @@ class HieService {
                   daigOpd.diag_opd.push({
                     diagtype: result[index].diagtype,
                     diagcode: result[index].icode,
-                    diagname: result[index].diagtype.diagname
+                    diagname: result[index].diagname
                   });
                 }
               }
