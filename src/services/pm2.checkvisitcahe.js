@@ -17,8 +17,10 @@ const checkAndRun = async () => {
     const dateEvent = response.data.dateEvent;
    
     const now = new Date();
+    let hasRun = false; // สร้างตัวแปรเพื่อตรวจสอบว่า axios ได้ทำงานแล้วหรือยัง
 
-    if (now >= moment(dateEvent, 'YYYY-MM-DD HH:mm:ss')) {
+    console.log(dateEvent)
+    if (!hasRun && now >= moment(dateEvent, 'YYYY-MM-DD HH:mm:ss')) {
       // หากเราอยู่หรือเกินวันและเวลาที่กำหนด
       axios.post(`${URL_Hos}/hie/visitcashe`,null, {
         httpsAgent: new https.Agent({ rejectUnauthorized: false }),
