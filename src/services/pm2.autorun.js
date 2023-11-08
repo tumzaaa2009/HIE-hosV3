@@ -15,7 +15,7 @@ const checkAndRun = async () => {
    
     });
     const dateEvent = response.data.dateEvent;
-    let hasRun = false; // สร้างตัวแปรเพื่อตรวจสอบว่า axios ได้ทำงานแล้วหรือยัง
+    let hasRun = false;  
 
     const now = new Date();
     console.log(dateEvent)
