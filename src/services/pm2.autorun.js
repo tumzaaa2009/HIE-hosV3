@@ -17,10 +17,10 @@ const checkAndRun = async () => {
     const dateEvent = response.data.dateEvent;
    
     const now = new Date();
-
+    console.log(dateEvent)
     if (now >= moment(dateEvent, 'YYYY-MM-DD HH:mm:ss')) {
       // หากเราอยู่หรือเกินวันและเวลาที่กำหนด
-      axios.post(`${URL_Hos}/drugallgycashe`,null, {
+      axios.post(`${URL_Hos}/hie/drugallgycashe`,null, {
         httpsAgent: new https.Agent({ rejectUnauthorized: false }),
     })
         .then((response) => {

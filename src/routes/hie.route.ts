@@ -20,8 +20,8 @@ export class HieRouter implements Routes {
 
 
     // ฝั่ง api
-    this.router.get(`${this.path}/get_visit_list`,this.HieControler.GetVisitList)
-    this.router.get(`${this.path}/get_visit_date`,this.HieControler.GetVisitDate)
+    this.router.get(`/get_visit_list`,this.HieControler.GetVisitList)
+    this.router.get(`/get_visit_date`,this.HieControler.GetVisitDate)
   }
 }
 export default  HieRouter
