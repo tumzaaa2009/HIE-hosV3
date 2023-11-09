@@ -27,6 +27,9 @@ module.exports = {
         PORT: PORT,
         NODE_ENV: 'production',
         HTTPS: HTTPS, // เปิดใช้งาน HTTPS
+         SSL_CRT_FILE: SSL_CRT_FILE,
+         SSL_KEY_FILE: SSL_KEY_FILE,
+         SSL_CHAIN_FILE :SSL_CHAIN_FILE
         
       },
     },
