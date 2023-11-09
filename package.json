@@ -12,11 +12,11 @@
     "test": "jest --forceExit --detectOpenHandles",
     "lint": "eslint --ignore-path .gitignore --ext .ts src",
     "lint:fix": "npm run lint -- --fix",
-    "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod && cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '44 11 * * *' && cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '44 11 * * *'",
+    "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod && cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '59 23 * * *' && cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '59 23 * * *'",
   
     "deploy:dev": "pm2 start ecosystem.config.js --only dev",
   
-    "pm2-cron": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '44 11 * * *' && cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '44 11 * * *'",
+    "pm2-cron": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '59 23 * * *' && cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '59 23 * * *'",
     
     "croundrug": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '59 23 * * *' ",
     "crounvisit": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '59 23 * * *' "
