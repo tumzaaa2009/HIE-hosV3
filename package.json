@@ -6,21 +6,16 @@
   "license": "ISC",
   "scripts": {
     "start": "npm run build && cross-env NODE_ENV=production node dist/server.js",
-    "dev": "cross-env NODE_ENV=development nodemon",
+    "dev": "cross-env NODE_ENV=production nodemon",
     "build": "swc src -d dist --source-maps --copy-files",
     "build:tsc": "tsc && tsc-alias",
     "test": "jest --forceExit --detectOpenHandles",
     "lint": "eslint --ignore-path .gitignore --ext .ts src",
     "lint:fix": "npm run lint -- --fix",
-    "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod && cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '59 23 * * *' && cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '59 23 * * *'",
-  
-    "deploy:dev": "pm2 start ecosystem.config.js --only dev",
-  
+    "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
     "pm2-cron": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '59 23 * * *' && cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '59 23 * * *'",
-    
     "croundrug": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '59 23 * * *' ",
     "crounvisit": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '59 23 * * *' "
-     
   },
   "dependencies": {
     "axios": "^1.6.0",
@@ -40,6 +35,7 @@
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
     "mysql2": "^3.6.2",
+    "path": "^0.12.7",
     "pg": "^8.11.3",
     "pg-promise": "^11.5.4",
     "postgres": "^3.4.1",

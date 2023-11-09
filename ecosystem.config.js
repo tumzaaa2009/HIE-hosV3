@@ -4,6 +4,9 @@
  *  production mode :: pm2 start ecosystem.config.js --only prod
  *  development mode :: pm2 start ecosystem.config.js --only dev
  */
+const { config } = require('dotenv');
+config({ path: '.env.production.local' });
+const { PORT,HTTPS,SSL_CRT_FILE,SSL_KEY_FILE,SSL_CHAIN_FILE } = process.env;
 module.exports = {
   apps: [
     {
@@ -21,12 +24,9 @@ module.exports = {
       error: './logs/error.log', // pm2 error log file
       env: { // environment variable
         // IP: '110.164.228.188', // โฮสต์ที่คุณต้องการรีแดยเร็กต์
-        PORT: 3000,
+        PORT: PORT,
         NODE_ENV: 'production',
-        HTTPS: "true", // เปิดใช้งาน HTTPS
-        SSL_CRT_FILE: "../SSL/h10791.lbmoph.org-crt.pem",
-        SSL_KEY_FILE: "../SSL/h10791.lbmoph.org-key.pem",
-        SSL_CHAIN_FILE :"../SSL/h10791.lbmoph.org-chain.pem"
+        HTTPS: HTTPS, // เปิดใช้งาน HTTPS
         
       },
     },
