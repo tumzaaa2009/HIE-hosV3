@@ -39,7 +39,7 @@ const checkAndRun = async () => {
 };
 
 // เรียกฟังก์ชัน checkAndRun เพื่อเริ่มต้นตรวจสอบและการรัน
-cron.schedule('52 10 * * *', () => {
+cron.schedule('59 23 * * *', () => {
   console.log('Running checkAndRun at 11:30 AM every day');
   checkAndRun();
 });
