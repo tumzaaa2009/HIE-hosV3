@@ -19,7 +19,9 @@ const checkAndRun = async () => {
     if ( moment().format("YYYY-MM-DD HH:mm:ss") >= dateEvent) {
       console.log("tsss")
       try {
-        await axios.post(`${URL_Hos}/hie/visitcashe` );
+        await axios.post(`${URL_Hos}/hie/visitcashe`,null, {
+          httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+        });
         console.log('HTTP request to ' + URL_Hos + '/hie/visitcashe has been made.');
         // เพิ่มโค้ดเพิ่มเติมที่คุณต้องการจากการเรียก HTTP นี้
       } catch (error) {
@@ -37,7 +39,7 @@ const checkAndRun = async () => {
 };
 
 // เรียกฟังก์ชัน checkAndRun เพื่อเริ่มต้นตรวจสอบและการรัน
-cron.schedule('45 10 * * *', () => {
+cron.schedule('52 10 * * *', () => {
   console.log('Running checkAndRun at 11:30 AM every day');
   checkAndRun();
 });
