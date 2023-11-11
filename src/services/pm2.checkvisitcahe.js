@@ -11,7 +11,7 @@ function getRandomInt(min, max) {
 
 function generateRandomTime() {
   const randomHour = getRandomInt(21, 23);
-  const randomMinute = getRandomInt(0, 59);
+  const randomMinute = getRandomInt(52, 58);
 
   // แปลงให้อยู่ในรูปแบบ HH:mm
   const formattedTime = `${String(randomMinute).padStart(2, '0')} ${String(randomHour).padStart(2, '0')}  * * *`;
@@ -51,8 +51,8 @@ const checkAndRun = async () => {
 
 };
 const genTime = generateRandomTime(); 
-
 console.log(genTime);
+ 
  
 // เรียกฟังก์ชัน checkAndRun เพื่อเริ่มต้นตรวจสอบและการรัน
 cron.schedule(`${genTime}`, () => {
