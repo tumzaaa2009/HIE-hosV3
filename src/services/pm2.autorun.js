@@ -51,8 +51,9 @@ const checkAndRun = async () => {
 
 
 };
+ 
 const genTime = generateRandomTime(); 
-
+ 
 console.log(genTime);
  
 // เรียกฟังก์ชัน checkAndRun เพื่อเริ่มต้นตรวจสอบและการรัน
