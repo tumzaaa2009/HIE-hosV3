@@ -10,7 +10,7 @@ function getRandomInt(min, max) {
 }
 
 function generateRandomTime() {
-  const randomHour = getRandomInt(0, 23);
+  const randomHour = getRandomInt(21, 23);
   const randomMinute = getRandomInt(0, 59);
 
   // แปลงให้อยู่ในรูปแบบ HH:mm
@@ -51,9 +51,12 @@ const checkAndRun = async () => {
 
 
 };
- console.log(generateRandomTime())
+const genTime = generateRandomTime(); 
+
+console.log(genTime);
+ 
 // เรียกฟังก์ชัน checkAndRun เพื่อเริ่มต้นตรวจสอบและการรัน
-cron.schedule(`${generateRandomTime()}`, () => {
-  console.log(`${generateRandomTime()}`);
+cron.schedule(`${genTime}`, () => {
+  console.log(`ว่งเวลา${generateRandomTime()}`);
   checkAndRun();
 });
