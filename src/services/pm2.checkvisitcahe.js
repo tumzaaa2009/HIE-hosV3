@@ -5,6 +5,19 @@ const { config } = require('dotenv');
 config({ path: '.env.production.local' });
 const cron = require('node-cron');
 const { END_POINT, URL_Hos, Token_DrugAllgy } = process.env;
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateRandomTime() {
+  const randomHour = getRandomInt(0, 23);
+  const randomMinute = getRandomInt(0, 59);
+
+  // แปลงให้อยู่ในรูปแบบ HH:mm
+  const formattedTime = `${String(randomMinute).padStart(2, '0')} ${String(randomHour).padStart(2, '0')}  * * *`;
+
+  return formattedTime;
+}
 
 const checkAndRun = async () => {
   try {
@@ -19,9 +32,9 @@ const checkAndRun = async () => {
     if ( moment().format("YYYY-MM-DD HH:mm:ss") >= dateEvent) {
       console.log("tsss")
       try {
-        await axios.post(`${URL_Hos}/hie/visitcashe`,null, {
+        await axios.post(`${URL_Hos}/hie/visitcashe`, null, {
           httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-        });
+        })
         console.log('HTTP request to ' + URL_Hos + '/hie/visitcashe has been made.');
         // เพิ่มโค้ดเพิ่มเติมที่คุณต้องการจากการเรียก HTTP นี้
       } catch (error) {
@@ -37,9 +50,9 @@ const checkAndRun = async () => {
   
 
 };
-
-// เรียกฟังก์ชัน checkAndRun เพื่อเริ่มต้นตรวจสอบและการรัน
-cron.schedule('59 23 * * *', () => {
-  console.log('Running checkAndRun at 11:30 AM every day');
+console.log(generateRandomTime())
+ 
+cron.schedule(`${generateRandomTime()}`, () => {
+  console.log(`${generateRandomTime()}`);
   checkAndRun();
 });
