@@ -216,7 +216,7 @@ class HieService {
       const formattedDate = today.toISOString().slice(0, 10);
       const formattedNextWeek = nextWeek.toISOString().slice(0, 10);
       
-      await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 23.59.00' }, axiosConfig);
+      await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 19.59.00' }, axiosConfig);
 
       return responsesArray;
     }
@@ -316,7 +316,7 @@ class HieService {
         // จัดรูปแบบวันที่ในรูปแบบ "yyyy-MM-dd"
         const formattedDate = today.toISOString().slice(0, 10);
         const formattedNextWeek = nextWeek.toISOString().slice(0, 10);
-        await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 23.59.00' }, axiosConfig);
+        await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 19.59.00' }, axiosConfig);
 
         return chunkResponses;
       }
