@@ -12,10 +12,10 @@
     "test": "jest --forceExit --detectOpenHandles",
     "lint": "eslint --ignore-path .gitignore --ext .ts src",
     "lint:fix": "npm run lint -- --fix",
-    "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod && npm run croundrug && npm run crounvisit",
+    "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
     "pm2-cron": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug --cron '59 23 * * *' && cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit --cron '59 23 * * *'",
-    "croundrug": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug  ",
-    "crounvisit": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit  "
+    "croundrug": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.autorun.js --name my-cron-drug",
+    "crounvisit": "cross-env NODE_ENV=production pm2 start ./src/services/pm2.checkvisitcahe.js --name my-cron-visit "
   },
   "dependencies": {
     "axios": "^1.6.0",
