@@ -2,10 +2,11 @@ import connection from '@/dbconfig';
 const batchSize: number = 2000; // จำนวนรายการที่จะส่งในแต่ละครั้ง
 import axios from 'axios';
 import moment from 'moment';
-import { Token_DrugAllgy, END_POINT ,hospCodeEnv,hospNameEnv } from '@config';
+import { Token_DrugAllgy, END_POINT, hospCodeEnv, hospNameEnv } from '@config';
 import { connect } from 'http2';
 import { resolve } from 'path';
- 
+import { promises } from 'dns';
+
 //ยาdrugAllgy
 function formatResult(queryResult) {
   const formattedResult = [];
@@ -107,7 +108,7 @@ async function DrugAxios(dataMap) {
         },
       },
     );
-      console.log(dataMap)
+
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -132,7 +133,7 @@ class HieService {
         })
         .then(result => {
           date = result.data;
-          console.log(result.data)
+    
           if (moment(date.date).format('YYYY-MM-DD') != 'Invalid date') {
             resolve(moment(date.date).format('YYYY-MM-DD'));
           } else {
@@ -190,7 +191,7 @@ class HieService {
               'x-api-key': `${Token_DrugAllgy}`,
             },
           });
-          console.log(response.data.msg); // แสดงค่า response.data.msg
+
           responsesArray.push(response.data.msg);
         } catch (error) {
           console.log(error);
@@ -200,7 +201,7 @@ class HieService {
     if (responsesArray) {
       const today = new Date();
       const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate()+1);
+      nextWeek.setDate(today.getDate());
       nextWeek.setHours(0, 0, 0, 0);
 
       // เปลี่ยนเวลาให้เป็น 23:59:00
@@ -215,8 +216,8 @@ class HieService {
       // จัดรูปแบบวันที่ในรูปแบบ "yyyy-MM-dd"
       const formattedDate = today.toISOString().slice(0, 10);
       const formattedNextWeek = nextWeek.toISOString().slice(0, 10);
-      
-      await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 19.59.00' }, axiosConfig);
+
+      await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 23.59.00' }, axiosConfig);
 
       return responsesArray;
     }
@@ -301,7 +302,7 @@ class HieService {
       if (chunkResponses) {
         const today = new Date();
         const nextWeek = new Date(today);
-      nextWeek.setDate(today.getDate()+1);
+        nextWeek.setDate(today.getDate());
         nextWeek.setHours(0, 0, 0, 0);
 
         // เปลี่ยนเวลาให้เป็น 23:59:00
@@ -316,7 +317,7 @@ class HieService {
         // จัดรูปแบบวันที่ในรูปแบบ "yyyy-MM-dd"
         const formattedDate = today.toISOString().slice(0, 10);
         const formattedNextWeek = nextWeek.toISOString().slice(0, 10);
-        await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 19.59.00' }, axiosConfig);
+        await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 23.59.00' }, axiosConfig);
 
         return chunkResponses;
       }
@@ -346,31 +347,30 @@ class HieService {
     });
     const checkNewDate = new Date();
     //เช็ค ticket ว่าหมดอายุรึยัง
-   
+
     if (checkToken.msg.expireTicket >= moment(checkNewDate).format('YYYY-MM-DD HH:mm:ss')) {
-      const callGetVisit = new Promise((resolve, reject) => {
-        
+      let visitListArray = { visit: [] };
+      const callGetVisitPatient = await new Promise((resolve, reject) => {
         //  ส่งค่า listdate ชองคนไข้
         const queryText = `
-        SELECT ov.vstdate,${hospCodeEnv} AS hospcode ,(SELECT hospital_thai_name  FROM hospital_profile)As hosname ,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,(year(CURDATE())-YEAR(p.birthday)) as age,icd101.code as diagcode,icd101.name as diagname,dt.name as diagtype  FROM vn_stat  as vn      
-        LEFT JOIN patient as p  on p.cid = vn.cid
-        LEFT JOIN ovst as ov  on ov.hn = vn.hn
-        LEFT join icd101 on icd101.code=vn.pdx
-        LEFT JOIN sex on sex.code=p.sex
-        left join ovstdiag od on od.vn=ov.vn
-        left join diagtype dt on dt.diagtype = od.diagtype
-        WHERE vn.cid='${checkToken.msg.cidPatient}'
-        Group by ov.vstdate
-        ORDER by ov.vstdate Desc
+                    SELECT '${hospCodeEnv}' AS hospcode
+                    ,(SELECT hospital_thai_name  FROM hospital_profile)As hosname 
+                    ,p.cid
+                    ,p.hn
+                    ,p.pname
+                    ,p.fname
+                    ,p.lname
+                    ,(SELECT name FROM sex WHERE code=p.sex) sex
+                    ,p.birthday
+                    ,TIMESTAMPDIFF(YEAR,p.birthday,CURDATE()) age
+              FROM patient p
+              WHERE p.cid='${checkToken.msg.cidPatient}'   `;
 
-        `;
-
-        let visitListArray = { visit: [] };
         connection.query(queryText, (err, resQueryVisitList) => {
           if (err) {
             resolve('Query ผิดพลาด');
           } else {
-            const patient: {} = {
+            resolve({
               status: '200',
               message: 'OK',
               person: {
@@ -385,29 +385,57 @@ class HieService {
                 birth: `${moment(resQueryVisitList[0].birthday).format('YYYY-MM-DD')}`,
                 age: `${resQueryVisitList[0].age}`,
               },
-            };
-
-            for (let index = 0; index < resQueryVisitList.length; index++) {
-              visitListArray.visit.push({
-                date_serv: `${moment(resQueryVisitList[index].vstdate).format('YYYY-MM-DD')}`,
-                diag_opd: [
-                  {
-                    diagtype: `${resQueryVisitList[index].diagtype}`,
-                    diagcode: `${resQueryVisitList[index].diagcode}`,
-                    diagname: `${resQueryVisitList[index].diagname}`,
-                  },
-                ],
-              });
-            }
-            const patientWithVisits = {
-              ...patient,
-              visit: visitListArray.visit,
-            };
-            resolve(patientWithVisits);
+            });
           }
         });
       });
-      return callGetVisit;
+
+      if (callGetVisitPatient.person.cid != '') {
+        const callGetVisitPatientVisitList: any = await new Promise((resolve, reject) => {
+          const queryPatientVisitList: string = `
+                                SELECT ov.vstdate,od.icd10 as diagcode
+                                ,c1.name diagname
+                                ,(SELECT name FROM   diagtype WHERE diagtype=od.diagtype) diagtype 
+                                FROM patient p 
+                                INNER JOIN ovst ov ON p.hn=ov.hn 
+                                INNER JOIN ovstdiag od on od.vn=ov.vn
+                                INNER JOIN icd101 c1 on c1.code=od.icd10
+                                WHERE p.cid='${callGetVisitPatient.person.cid}'
+                                ORDER BY ov.vstdate desc  `;
+
+          connection.query(queryPatientVisitList, (err, resQueryVisitList) => {
+            for (let index = 0; index < resQueryVisitList.length; index++) {
+              const currentDate = moment(resQueryVisitList[index].vstdate).format('YYYY-MM-DD');
+              const existingDateIndex = visitListArray.visit.findIndex(item => item.date_serv === currentDate);
+              if (existingDateIndex !== -1) {
+                visitListArray.visit[existingDateIndex].diag_opd.push({
+                  diagtype: `${resQueryVisitList[index].diagtype}`,
+                  diagcode: `${resQueryVisitList[index].diagcode}`,
+                  diagname: `${resQueryVisitList[index].diagname}`,
+                });
+              } else {
+                visitListArray.visit.push({
+                  date_serv: currentDate,
+                  diag_opd: [
+                    {
+                      diagtype: `${resQueryVisitList[index].diagtype}`,
+                      diagcode: `${resQueryVisitList[index].diagcode}`,
+                      diagname: `${resQueryVisitList[index].diagname}`,
+                    },
+                  ],
+                });
+              }
+            }
+            resolve(visitListArray);
+          });
+        });
+        const patientWithVisits = {
+          ...callGetVisitPatient,
+          visit: callGetVisitPatientVisitList.visit,
+        };
+
+        return patientWithVisits;
+      }
     } else {
       return { status: 400, msg: 'ticket หมดอายุ' };
     }
@@ -435,7 +463,6 @@ class HieService {
 
     //เช็ค ticket ว่าหมดอายุรึยัง
     if (checkToken.msg.expireTicket >= moment(checkNewDate).format('YYYY-MM-DD HH:mm:ss')) {
-       
       const callGetVisitDate = new Promise((resolve, reject) => {
         const sql = `SELECT ${hospCodeEnv} as hospcode, (SELECT hospital_thai_name  FROM hospital_profile)As hosname,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,( YEAR(CURDATE()) - YEAR(p.birthday)) AS age,ov.vstdate as date_serv,
         op.temperature as btemp,op.bps as systolic,op.bpd as diastolic,op.pulse,rr as respiratory,op.height as height,op.waist as weight,op.bmi,concat(op.cc,',',op.hpi,',',p.clinic) as chiefcomp,
@@ -460,8 +487,7 @@ class HieService {
         
         where p.cid='${checkToken.msg.cidPatient}' and ov.vstdate ='${date_serv}'
         `;
-        
-        
+
         let daigOpd = { diag_opd: [] };
         let drugOpd = { drug_opd: [] };
         let procudureOpd = { procudure_opd: [] };
@@ -479,24 +505,28 @@ class HieService {
             for (let index = 0; index < result.length; index++) {
               // lab
               const labtest = result[index].labtest;
-              if (labtest != null ) {
-                if (curretLabsFull === null || curretLabsFull !== labtest) {
-                  labOpd.labfu.push({
-                    labtest: result[index].labtest,
-                    labname: result[index].labname,
-                    labresult: result[index].labresult,
-                    labnormal: result[index].labnormal,
-                  });
+              if (labtest != null) {
+                const existingLabsIndex = labOpd.labfu.findIndex(item => item.labtest === labtest);
+                if (existingLabsIndex === -1) {
+                  if (curretLabsFull === null || curretLabsFull !== labtest) {
+                    labOpd.labfu.push({
+                      labtest: result[index].labtest,
+                      labname: result[index].labname,
+                      labresult: result[index].labresult,
+                      labnormal: result[index].labnormal,
+                    });
+                  }
                 }
               }
               // diageOPd
               const icodeDiag = result[index].icode;
               if (icodeDiag != null) {
                 if (currentDiagCode === null || currentDiagCode !== icodeDiag) {
+                  const existingLabsIndex = daigOpd.diag_opd.findIndex(item => item.icode === icodeDiag);
                   daigOpd.diag_opd.push({
                     diagtype: result[index].diagtype,
                     diagcode: result[index].icode,
-                    diagname: result[index].diagname
+                    diagname: result[index].diagname,
                   });
                 }
               }
@@ -504,10 +534,14 @@ class HieService {
               const procedcode = result[index].procedcode;
               if (procedcode != null) {
                 if (currentProcedCode === null || currentProcedCode !== procedcode) {
-                  procudureOpd.procudure_opd.push({
-                    procedcode: procedcode,
-                    procedname: result[index].procedname,
-                  });
+                  const existingProcedIndex = procudureOpd.procudure_opd.findIndex(item => item.procedcode === procedcode);
+                 
+                  if (existingProcedIndex === -1) {
+                    procudureOpd.procudure_opd.push({
+                      procedcode: procedcode,
+                      procedname: result[index].procedname,
+                    });
+                  }
                 }
               }
               // รายการยา
@@ -515,19 +549,21 @@ class HieService {
               if (did != null) {
                 if (currentDidstd === null || currentDidstd !== did) {
                   currentDidstd = did;
-                  drugOpd.drug_opd.push({
-                    didstd: did,
-                    drugname: result[index].drugname,
-                    amount: result[index].amount,
-                    unit: result[index].units,
-                    usage: result[index].drugusage,
-                  });
+                  const existingDidIndex = drugOpd.drug_opd.findIndex(item => item.didstd === did);
+                  if (existingDidIndex === -1) {
+                    drugOpd.drug_opd.push({
+                      didstd: did,
+                      drugname: result[index].drugname,
+                      amount: result[index].amount,
+                      unit: result[index].units,
+                      usage: result[index].drugusage,
+                    });
+                  }
                 }
               }
-              
             }
-          
-            const getDatePatient:any = {
+
+            const getDatePatient: any = {
               status: '200',
               message: 'OK',
               person: {
@@ -560,13 +596,13 @@ class HieService {
                 labfu: labOpd.labfu,
               },
             };
-           
+
             resolve(getDatePatient);
           }
         });
       });
-    
-    return callGetVisitDate
+
+      return callGetVisitDate;
     } else {
       return { status: 400, msg: 'ticket หมดอายุ' };
     }
