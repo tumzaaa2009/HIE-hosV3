@@ -201,7 +201,7 @@ class HieService {
     if (responsesArray) {
       const today = new Date();
       const nextWeek = new Date(today);
-      nextWeek.setDate(today.getDate());
+      nextWeek.setDate(today.getDate()+1);
       nextWeek.setHours(0, 0, 0, 0);
 
       // เปลี่ยนเวลาให้เป็น 23:59:00
@@ -217,7 +217,7 @@ class HieService {
       const formattedDate = today.toISOString().slice(0, 10);
       const formattedNextWeek = nextWeek.toISOString().slice(0, 10);
 
-      await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 23.59.00' }, axiosConfig);
+      await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 19.59.00' }, axiosConfig);
 
       return responsesArray;
     }
@@ -302,7 +302,7 @@ class HieService {
       if (chunkResponses) {
         const today = new Date();
         const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate());
+        nextWeek.setDate(today.getDate()+1);
         nextWeek.setHours(0, 0, 0, 0);
 
         // เปลี่ยนเวลาให้เป็น 23:59:00
@@ -317,7 +317,7 @@ class HieService {
         // จัดรูปแบบวันที่ในรูปแบบ "yyyy-MM-dd"
         const formattedDate = today.toISOString().slice(0, 10);
         const formattedNextWeek = nextWeek.toISOString().slice(0, 10);
-        await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 23.59.00' }, axiosConfig);
+        await axios.post('/', { date: maxDate, dateUpdate: formattedNextWeek + ' 19.59.00' }, axiosConfig);
 
         return chunkResponses;
       }
