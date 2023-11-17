@@ -464,7 +464,7 @@ class HieService {
     //เช็ค ticket ว่าหมดอายุรึยัง
     if (checkToken.msg.expireTicket >= moment(checkNewDate).format('YYYY-MM-DD HH:mm:ss')) {
       const callGetVisitDate = new Promise((resolve, reject) => {
-        const sql = `SELECT ${hospCodeEnv} as hospcode, (SELECT hospital_thai_name  FROM hospital_profile)As hosname,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,( YEAR(CURDATE()) - YEAR(p.birthday)) AS age,ov.vstdate as date_serv,
+        const sql = `SELECT '${hospCodeEnv}' as hospcode, (SELECT hospital_thai_name  FROM hospital_profile)As hosname,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,( YEAR(CURDATE()) - YEAR(p.birthday)) AS age,ov.vstdate as date_serv,
         op.temperature as btemp,op.bps as systolic,op.bpd as diastolic,op.pulse,rr as respiratory,op.height as height,op.waist as weight,op.bmi,concat(op.cc,',',op.hpi,',',p.clinic) as chiefcomp,
         ov.pdx as diagcode,icd.name as diagname ,ov.dx_doctor,dr.name as doctor,dt.name as diagtype,opi.icode,d.did,concat(d.name,' ',d.strength) as drugname,opi.qty as amount,d.units
         ,ds.code as drugusage,opr.icd9 as procedcode,icd9.name as procedname,lo.lab_items_code as labtest,li.lab_items_name as labname,lo.lab_order_result as labresult,li.lab_items_normal_value as labnormal
