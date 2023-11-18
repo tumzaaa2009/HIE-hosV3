@@ -21,7 +21,10 @@ export class App {
   public port: string | number;
   public httpsOption;
   public server;
+  public socketIo;
+  public io;
   constructor(routes: Routes[]) {
+    this.SocketIo()
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT ;
@@ -35,8 +38,30 @@ export class App {
     this.initializeRoutes(routes);
     this.initializeSwagger();
     this.initializeErrorHandling();
+    this.SocketIo()
   }
 
+  public SocketIo() {
+    this.io = require('socket.io')(this.server, {
+
+      transport: ['websocket', 'polling', 'flashsocket'],
+      cors: {
+        origins: 'https://rh4cloudcenter.moph.go.th',
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['my-socket-hie'],
+        credentials: true,
+      },
+    });
+
+    this.io.on('connection', (socket: any) => {
+      console.log("บ้านหมี่")
+    
+    })
+   
+  }
+  public Io() {
+    return this.io;
+  }
   public listen() {
     this.server.listen(this.port, () => {
       logger.info(`=================================`);
