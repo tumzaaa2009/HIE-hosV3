@@ -66,6 +66,7 @@ function splitDataVisit(data, chunkSize) {
     const chunk = data.slice(i, i + chunkSize);
     // แตก Object drugAllergy และกำหนดรูปแบบ
     const modifiedChunk = chunk.map(item => {
+      console.log(item)
       return {
         Cid: item.cid,
         hospCode: item.hospCode,
@@ -147,7 +148,7 @@ class HieService {
     const resultQuery = await new Promise((resolve, reject) => {
       const dumpVisitListPatient: string = `SELECT
       a.cid AS cid,
-      "${hospCodeEnv}" AS hospCode,
+      ? AS hospCode,
       16 AS provinceCode,
       max( a.vstdate ) AS vstdate 
       FROM
@@ -157,11 +158,11 @@ class HieService {
       AND CHAR_LENGTH( a.cid ) = 13 
       AND a.cid NOT LIKE '0%' 
       AND a.vstdate <= now()
-      AND a.vstdate BETWEEN '${checkVisitCaheResult}' and now()
+      AND a.vstdate BETWEEN  ? and now()
       GROUP BY
       a.cid  `;
-
-      connection.query(dumpVisitListPatient, (err, resQuery) => {
+      const values = [hospCodeEnv,checkVisitCaheResult]
+      connection.query(dumpVisitListPatient,values, (err, resQuery) => {
         if (err) {
           return resolve(err);
         }
@@ -248,7 +249,7 @@ class HieService {
       const formattedResult = await new Promise((resolve, reject) => {
         const queryDrugAllgy: string = ` SELECT 
                                 pa.cid AS cid,
-                                ${hospCodeEnv} AS hospcode,
+                                 ? AS hospcode,
                                 DATE(a.report_date) AS update_date,
                                 a.agent AS agent,
                                 a.agent_code24 AS icode,
@@ -260,10 +261,10 @@ class HieService {
                                 AND LENGTH(pa.cid) = 13
                                 AND pa.cid NOT LIKE '0%'
                                 AND report_date IS NOT NULL
-                                AND report_date between ${checkVisitCaheResult} and now() 
+                                AND report_date between ? and now() 
                                 ORDER BY a.report_date DESC `;
-
-        connection.query(queryDrugAllgy, (err, queryResult) => {
+        const values  = [ hospCodeEnv,checkVisitCaheResult]
+        connection.query(queryDrugAllgy,values, (err, queryResult) => {
           const originalDate = moment(queryResult[0].update_date, 'YYYY-MM-DD');
           if (err) resolve(err);
           const previousDate = originalDate.subtract('days').format('YYYY-MM-DD');
