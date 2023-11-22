@@ -160,7 +160,9 @@ class HieService {
       AND a.vstdate <= now()
       AND a.vstdate BETWEEN  ? and now()
       GROUP BY
-      a.cid  `;
+      a.cid 
+      ORDER BY a.vstdate DESC
+      `;
       const values = [hospCodeEnv,checkVisitCaheResult]
       connection.query(dumpVisitListPatient,values, (err, resQuery) => {
         if (err) {
