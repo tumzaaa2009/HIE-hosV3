@@ -133,7 +133,7 @@ class HieService {
         })
         .then(result => {
           date = result.data;
-    
+
           if (moment(date.date).format('YYYY-MM-DD') != 'Invalid date') {
             resolve(moment(date.date).format('YYYY-MM-DD'));
           } else {
@@ -201,7 +201,7 @@ class HieService {
     if (responsesArray) {
       const today = new Date();
       const nextWeek = new Date(today);
-      nextWeek.setDate(today.getDate()+1);
+      nextWeek.setDate(today.getDate() + 1);
       nextWeek.setHours(0, 0, 0, 0);
 
       // เปลี่ยนเวลาให้เป็น 23:59:00
@@ -302,7 +302,7 @@ class HieService {
       if (chunkResponses) {
         const today = new Date();
         const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate()+1);
+        nextWeek.setDate(today.getDate() + 1);
         nextWeek.setHours(0, 0, 0, 0);
 
         // เปลี่ยนเวลาให้เป็น 23:59:00
@@ -343,7 +343,7 @@ class HieService {
           .then(result => {
             return reslove(result.data);
           });
-      } catch (error) {}
+      } catch (error) { }
     });
     const checkNewDate = new Date();
     //เช็ค ticket ว่าหมดอายุรึยัง
@@ -353,20 +353,24 @@ class HieService {
       const callGetVisitPatient = await new Promise((resolve, reject) => {
         //  ส่งค่า listdate ชองคนไข้
         const queryText = `
-                    SELECT '${hospCodeEnv}' AS hospcode
-                    ,(SELECT hospital_thai_name  FROM hospital_profile)As hosname 
-                    ,p.cid
-                    ,p.hn
-                    ,p.pname
-                    ,p.fname
-                    ,p.lname
-                    ,(SELECT name FROM sex WHERE code=p.sex) sex
-                    ,p.birthday
-                    ,TIMESTAMPDIFF(YEAR,p.birthday,CURDATE()) age
-              FROM patient p
-              WHERE p.cid='${checkToken.msg.cidPatient}'   `;
-
-        connection.query(queryText, (err, resQueryVisitList) => {
+        SELECT
+          ? AS hospcode,
+          (SELECT hospital_thai_name FROM hospital_profile) AS hosname,
+          p.cid,
+          p.hn,
+          p.pname,
+          p.fname,
+          p.lname,
+          (SELECT name FROM sex WHERE code = p.sex) AS sex,
+          p.birthday,
+          TIMESTAMPDIFF(YEAR, p.birthday, CURDATE()) AS age
+        FROM
+          patient p
+        WHERE
+          p.cid = ?`;
+        const values = [hospCodeEnv, checkToken.msg.cidPatient];
+        connection.query(queryText, values, (err, resQueryVisitList) => {
+           
           if (err) {
             resolve('Query ผิดพลาด');
           } else {
@@ -392,7 +396,7 @@ class HieService {
 
       if (callGetVisitPatient.person.cid != '') {
         const callGetVisitPatientVisitList: any = await new Promise((resolve, reject) => {
-          const queryPatientVisitList: string = `
+          const queryPatientVisitList = `
                                 SELECT ov.vstdate,od.icd10 as diagcode
                                 ,c1.name diagname
                                 ,(SELECT name FROM   diagtype WHERE diagtype=od.diagtype) diagtype 
@@ -400,10 +404,10 @@ class HieService {
                                 INNER JOIN ovst ov ON p.hn=ov.hn 
                                 INNER JOIN ovstdiag od on od.vn=ov.vn
                                 INNER JOIN icd101 c1 on c1.code=od.icd10
-                                WHERE p.cid='${callGetVisitPatient.person.cid}'
+                                WHERE p.cid=?
                                 ORDER BY ov.vstdate desc  `;
-
-          connection.query(queryPatientVisitList, (err, resQueryVisitList) => {
+          const values = [checkToken.msg.cidPatient];
+          connection.query(queryPatientVisitList, values, (err, resQueryVisitList) => {
             for (let index = 0; index < resQueryVisitList.length; index++) {
               const currentDate = moment(resQueryVisitList[index].vstdate).format('YYYY-MM-DD');
               const existingDateIndex = visitListArray.visit.findIndex(item => item.date_serv === currentDate);
@@ -457,14 +461,14 @@ class HieService {
           .then(result => {
             return reslove(result.data);
           });
-      } catch (error) {}
+      } catch (error) { }
     });
     const checkNewDate = new Date();
 
     //เช็ค ticket ว่าหมดอายุรึยัง
     if (checkToken.msg.expireTicket >= moment(checkNewDate).format('YYYY-MM-DD HH:mm:ss')) {
       const callGetVisitDate = new Promise((resolve, reject) => {
-        const sql = `SELECT '${hospCodeEnv}' as hospcode, (SELECT hospital_thai_name  FROM hospital_profile)As hosname,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,( YEAR(CURDATE()) - YEAR(p.birthday)) AS age,ov.vstdate as date_serv,
+        const sql = `SELECT ? as hospcode, (SELECT hospital_thai_name  FROM hospital_profile)As hosname,p.cid,p.hn,p.pname,p.fname,p.lname,sex.name as sex,p.birthday,( YEAR(CURDATE()) - YEAR(p.birthday)) AS age,ov.vstdate as date_serv,
         op.temperature as btemp,op.bps as systolic,op.bpd as diastolic,op.pulse,rr as respiratory,op.height as height,op.waist as weight,op.bmi,concat(op.cc,',',op.hpi,',',p.clinic) as chiefcomp,
         ov.pdx as diagcode,icd.name as diagname ,ov.dx_doctor,dr.name as doctor,dt.name as diagtype,opi.icode,d.did,concat(d.name,' ',d.strength) as drugname,opi.qty as amount,d.units
         ,ds.code as drugusage,opr.icd9 as procedcode,icd9.name as procedname,lo.lab_items_code as labtest,li.lab_items_name as labname,lo.lab_order_result as labresult,li.lab_items_normal_value as labnormal
@@ -485,15 +489,15 @@ class HieService {
         left join lab_order lo on lo.lab_order_number=lh.lab_order_number
         left join lab_items li on li.lab_items_code =lo.lab_items_code
         
-        where p.cid='${checkToken.msg.cidPatient}' and ov.vstdate ='${date_serv}'
+        where p.cid=? and ov.vstdate =?
         `;
-
+        const values = [hospCodeEnv,checkToken.msg.cidPatient, date_serv];
         let daigOpd = { diag_opd: [] };
         let drugOpd = { drug_opd: [] };
         let procudureOpd = { procudure_opd: [] };
         let labOpd = { labfu: [] };
 
-        connection.query(sql, (err, result) => {
+        connection.query(sql, values, (err, result) => {
           if (err) {
             console.log(err);
             reject('Query ผิดพลาด');
@@ -535,7 +539,7 @@ class HieService {
               if (procedcode != null) {
                 if (currentProcedCode === null || currentProcedCode !== procedcode) {
                   const existingProcedIndex = procudureOpd.procudure_opd.findIndex(item => item.procedcode === procedcode);
-                 
+
                   if (existingProcedIndex === -1) {
                     procudureOpd.procudure_opd.push({
                       procedcode: procedcode,
