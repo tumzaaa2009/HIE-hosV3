@@ -596,7 +596,7 @@ class HieService {
                 weight: result[0].weight,
                 bmi: result[0].bmi,
                 chiefcomp: result[0].chiefcomp,
-                physical_exam : result[0].pe,
+                physical_exam : result[0] .pe,
                 doctor: result[0].doctor,
                 diag_opd: daigOpd.diag_opd,
                 drug_opd: drugOpd.drug_opd,
