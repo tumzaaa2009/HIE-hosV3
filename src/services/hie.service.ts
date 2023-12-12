@@ -2,7 +2,7 @@ import connection from '@/dbconfig';
 const batchSize: number = 2000; // จำนวนรายการที่จะส่งในแต่ละครั้ง
 import axios from 'axios';
 import moment from 'moment';
-import { Token_DrugAllgy, END_POINT, hospCodeEnv, hospNameEnv } from '@config';
+import { Token_DrugAllgy, END_POINT, hospCodeEnv, hospNameEnv,provinceCode } from '@config';
 import { connect } from 'http2';
 import { resolve } from 'path';
 import { promises } from 'dns';
@@ -149,7 +149,7 @@ class HieService {
       const dumpVisitListPatient: string = `SELECT
       a.cid AS cid,
       ? AS hospCode,
-      16 AS provinceCode,
+      ? AS provinceCode,
       max( a.vstdate ) AS vstdate 
       FROM
       vn_stat a 
@@ -163,7 +163,7 @@ class HieService {
       a.cid 
       ORDER BY a.vstdate DESC
       `;
-      const values = [hospCodeEnv,checkVisitCaheResult]
+      const values = [hospCodeEnv,provinceCode,checkVisitCaheResult]
       connection.query(dumpVisitListPatient,values, (err, resQuery) => {
         if (err) {
           return resolve(err);
@@ -601,7 +601,7 @@ class HieService {
                 diag_opd: daigOpd.diag_opd,
                 drug_opd: drugOpd.drug_opd,
                 procudure_opd: procudureOpd.procudure_opd,
-                labfu: labOpd.labfu,
+                labfu: labOpd.labfu, 
               },
             };
 
