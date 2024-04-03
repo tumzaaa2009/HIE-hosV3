@@ -9,5 +9,12 @@ pipeline {
                 sh 'env | sort'
             }
         }
+         stage('npm run start'){
+            steps {
+                echo 'start'
+                echo '******************************'  
+                 
+            }
+        }
     }
 }
