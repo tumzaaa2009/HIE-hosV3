@@ -1,11 +1,12 @@
-pipeline{
-    agent any
-    tools {nodejs "Node"}
+pipeline {
+    agent any 
     stages {
-        stage('Clone Repository'){
-            steps{
-                git branch: 'main',
-                    url: 'https://github.com/tumzaaa2009/HIE-hosV3.git'
+ 
+        stage('npm install'){
+            steps {
+                echo 'install'
+                echo '******************************'  
+                sh 'env | sort'
             }
         }
     }
